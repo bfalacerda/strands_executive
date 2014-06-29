@@ -181,14 +181,27 @@ class TopMapMdp(Mdp):
 
 
         
-    def update_nav_statistics(self):
+    def update_nav_statistics(self, date_query = None, start_hour=0, end_hour=24):
         msg_store = MessageStoreProxy()
     
         query_meta = {}
         query_meta["pointset"] = self.top_map
         print self.top_map
-        message_list = msg_store.query(NavStatistics._type, {}, query_meta)
+        if date_query is None:
+            message_list = msg_store.query(NavStatistics._type, {}, query_meta)
+        else:
+            message_list = msg_store.query(NavStatistics._type, date_query, query_meta)
         n_data=len(message_list)
+        i=0
+        while i<n_data:
+            entry=message_list[i]
+            inserted_at=entry[1]["inserted_at"]
+            if inserted_at.hour < start_hour or inserted_at.hour > end_hour:
+                del message_list[i]
+                n_data=n_data-1
+            else:
+                i=i+1
+                
         n_unprocessed_data=n_data
 
         

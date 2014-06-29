@@ -26,7 +26,7 @@ class MdpPlanner(object):
         self.time_client= rospy.ServiceProxy('/mdp_plan_exec/get_expected_travel_time_to_node', GetExpectedTravelTime)
         self.add_client= rospy.ServiceProxy('/mdp_plan_exec/add_mdp_model', AddMdpModel)
         self.mdp_file='/home/bruno/Desktop/teste.prism'
-        self.top_map_mdp=TopMapMdp('g4s')
+        self.top_map_mdp=TopMapMdp('aaf_y1_topo')
         self.prism_client=PrismClient(8085, '/home/bruno/tmp/prism/data')
 
         
@@ -48,11 +48,11 @@ class MdpPlanner(object):
         time_of_day='test'
         
         
-        start_waypoint='WayPoint13'
-        end_waypoint='WayPoint22'
+        start_waypoint='SafePointLobby'
+        end_waypoint='CrossRoads'
         
-        start = datetime(2014, 5, 19)
-        end = datetime(2014, 5, 23)
+        start = datetime(2014, 5, 12)
+        end = datetime(2014, 5, 16)
         
         
         #n_days=(end-start).days+1
@@ -71,9 +71,17 @@ class MdpPlanner(object):
         opacity = 0.4
         error_config = {'ecolor': '0.3'}
         
+        
+        
+        day_start=6.5
+        mid_morning=9
+        after_lunch=11.5
+        day_end=14
+        
+        
 
         date_query= {"_meta.inserted_at": {"$gte": start, "$lte": end}}
-        self.top_map_mdp.update_nav_statistics(date_query=date_query, start_hour=8.5, end_hour=11)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query, start_hour=day_start, end_hour=mid_morning)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -82,7 +90,7 @@ class MdpPlanner(object):
         exp_times[0]=d
         days[0]=0
 
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=11, end_hour=13.5)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=mid_morning, end_hour=after_lunch)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -91,7 +99,7 @@ class MdpPlanner(object):
         exp_times[1]=d
         days[1]=1
         
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=13.5, end_hour=16)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=after_lunch, end_hour=day_end)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -134,14 +142,14 @@ class MdpPlanner(object):
                         
                         
                         
-        start = datetime(2014, 5, 26)
-        end = datetime(2014, 5, 30)
+        start = datetime(2014, 5, 19)
+        end = datetime(2014, 5, 23)
         
         
         
 
         date_query= {"_meta.inserted_at": {"$gte": start, "$lte": end}}
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=8.5, end_hour=11)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=day_start, end_hour=mid_morning)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -150,7 +158,7 @@ class MdpPlanner(object):
         exp_times[0]=d
         days[0]=0
 
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=11, end_hour=13.5)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=mid_morning, end_hour=after_lunch)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -159,7 +167,7 @@ class MdpPlanner(object):
         exp_times[1]=d
         days[1]=1
         
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=13.5, end_hour=16)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=after_lunch, end_hour=day_end)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -202,14 +210,14 @@ class MdpPlanner(object):
         
         
         
-        start = datetime(2014, 6, 2)
-        end = datetime(2014, 6, 6)
+        start = datetime(2014, 5, 26)
+        end = datetime(2014, 5 , 30)
         
         
         
 
         date_query= {"_meta.inserted_at": {"$gte": start, "$lte": end}}
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=8.5, end_hour=11)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=day_start, end_hour=mid_morning)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -218,7 +226,7 @@ class MdpPlanner(object):
         exp_times[0]=d
         days[0]=0
 
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=11, end_hour=13.5)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=mid_morning, end_hour=after_lunch)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -227,7 +235,7 @@ class MdpPlanner(object):
         exp_times[1]=d
         days[1]=1
         
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=13.5, end_hour=16)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=after_lunch, end_hour=day_end)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -262,14 +270,14 @@ class MdpPlanner(object):
         
         
         
-        start = datetime(2014, 6, 9)
-        end = datetime(2014, 6, 13)
+        start = datetime(2014, 6, 2)
+        end = datetime(2014, 6, 6)
         
 
         
 
         date_query= {"_meta.inserted_at": {"$gte": start, "$lte": end}}
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=8.5, end_hour=11)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=day_start, end_hour=mid_morning)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -278,7 +286,7 @@ class MdpPlanner(object):
         exp_times[0]=d
         days[0]=0
 
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=11, end_hour=13.5)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=mid_morning, end_hour=after_lunch)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
@@ -287,7 +295,7 @@ class MdpPlanner(object):
         exp_times[1]=d
         days[1]=1
         
-        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=13.5, end_hour=16)
+        self.top_map_mdp.update_nav_statistics(date_query=date_query,start_hour=after_lunch, end_hour=day_end)
         #top_map_mdp.set_policy('/home/bruno/tmp/prism/all_day/adv.tra')
         self.top_map_mdp.write_prism_model(self.mdp_file)
         self.prism_client.add_model(time_of_day, self.mdp_file)
