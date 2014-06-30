@@ -37,8 +37,8 @@ class MdpPlanner(object):
         
 
 
-        #self.top_map='g4s'
-        self.top_map='aaf_y1_topo'
+        self.top_map='g4s'
+        #self.top_map='aaf_y1_topo'
         
         
         self.waypoint='WayPoint1'
@@ -199,9 +199,10 @@ class MdpPlanner(object):
         for top_node in self.top_nodes:
             for edge in top_node[0].edges:
                 source_name=top_node[0].name
-                target_name=edge.node                
+                target_name=edge.node
+                dist=self.get_distance(source_name, edge.node)
                 mean, std_dev = self.get_mean_travel_times(source_name, target_name)
-                if mean is not None:
+                if mean is not None and mean > dist:
                     sources.append(source_name)
                     targets.append(target_name)
                     edge_names.append(source_name + '\n(' + edge.action[0:15] + ')\n' + target_name)  
@@ -217,7 +218,7 @@ class MdpPlanner(object):
                     relative_dist_based_errors.append(math.fabs(dist_based_time-mean)/mean)
                     n_edges=n_edges+1
         
-        n_results=10
+        n_results=8
         #sorted_values=self.evaluate_time_based_estimates(True, n_results, relative_dist_based_errors)
         sorted_values=self.evaluate_time_based_estimates(False, n_results, relative_dist_based_errors)
         
@@ -284,13 +285,16 @@ class MdpPlanner(object):
 
         opacity = 0.4
         error_config = {'ecolor': '0.3'}
+        
+    
 
         rects1 = plt.bar(index, real_expected_times, bar_width,
                         alpha=opacity,
-                        color='b',
-                        yerr=std_devs,
-                        error_kw=error_config,
-                        label="Expected Times from Data")
+                        color='b'
+                        #yerr=std_devs,
+                        #error_kw=error_config,
+                        )
+                        
                         
         #rects1 = plt.bar(index, [(float(std_dev) / float(avg))*100 for std_dev,avg in zip(sn, avgs)], bar_width,
                         #alpha=opacity,
@@ -299,21 +303,24 @@ class MdpPlanner(object):
                         
         rects2 = plt.bar(index + bar_width, dist_based_times, bar_width,
                         alpha=opacity,
-                        color='r',
-                        label="Expected Times from Straight Line Distance")
+                        color='r'
+                        )
         
         #rects3 = plt.bar(index + 2*bar_width, [(float(count) / float(total))*100 for count,total in zip(people_count_list, data_totals)], bar_width,
                         #alpha=opacity,
                         #color='g',
                         #label="Avg People Detected per Transversal")                
 
-        plt.xlabel('Edge')
-        plt.ylabel('Average Travel Time')
+        #edge = plt.xlabel('Edge')
+        #edge.set_fontsize(20)
+        #y_label = plt.ylabel('Travel Time (s)')
+        #y_label.set_fontsize(20)
         #plt.title('Mean and stds from ' + self.waypoint)
-        plt.xticks(index + bar_width, edge_names)#, rotation='vertical')
-        plt.legend()
+        plt.xticks(index + bar_width, '')# edge_names)#, rotation='vertical')
+       # plt.legend()
+        plt.tick_params(labelsize=30)
 
-        plt.tight_layout()
+       # plt.tight_layout()
         plt.show()
             
     
