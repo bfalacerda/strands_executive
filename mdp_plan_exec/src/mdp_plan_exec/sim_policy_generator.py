@@ -4,9 +4,8 @@ import os
 
 
 class SimPolicyGenerator(object):
-    def __init__(self, port, file_dir, file_name, mdp):
+    def __init__(self, port, file_dir, file_name):
 
-        self.mdp = mdp
         self.current_nav_policy_state_defs = {}
         self.file_dir = file_dir
         self.file_name = file_name
@@ -19,17 +18,15 @@ class SimPolicyGenerator(object):
     def generate_prism_specification(self, ltl_spec):
         return 'partial(R{"time"}min=? [ (' + ltl_spec + ') ])'
 
+    def generate_time_bounded_spec(self, ltl_spec):
+        return 'Pmax=?[ (' + ltl_spec + ') ]'
+
     # Returns the parsed policy obtained by prism, or None is there is an error generating the policy.
-    def generate_policy_mdp(self, spec, initial_waypoint, epoch):
-        specification = self.generate_prism_specification(spec.ltl_task)
-        rospy.loginfo("The specification is: " + specification)
-        self.mdp.create_top_map_mdp_structure()
-        self.mdp.add_extra_domain(spec.vars, spec.actions)
-
-        # update initial state
-        self.mdp.set_initial_state_from_waypoint(initial_waypoint)
-        self.mdp.add_predictions(self.file_dir + self.file_name, epoch)
-
+    def generate_policy_mdp(self, spec, use_time):
+        if use_time:
+            specification = self.generate_time_bounded_spec(spec)
+        else:
+            specification = self.generate_prism_specification(spec)
         prism_call_success = self.prism_policy_generator.call_prism(specification)
         if prism_call_success:
             return self.file_dir
