@@ -46,7 +46,7 @@ catkin_package(
 )
 
 ExternalProject_add(prism
-	URL https://www.github.com/bfalacerda/prism-svn/archive/v1.0.tar.gz
+	URL URL https://github.com/bfalacerda/prism/archive/v4.4.robots.tar.gz
 	PREFIX "${CMAKE_CURRENT_BINARY_DIR}/prism"
 	BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/prism/src/prism/prism"
 	UPDATE_COMMAND ""
@@ -71,4 +71,3 @@ install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/prism
   #FILES_MATCHING PATTERN "*.so"
   PATTERN ".svn" EXCLUDE
 )
-
