@@ -1,11 +1,12 @@
 from rapport.stats import discretise_by_uniform_x
 
-def convert_to_mdp_time_as_reward(tm, save_loc):
+def convert_to_mdp_time_as_reward(tm, save_loc, initial_wp):
     nodes = tm.nodes.keys()
+    init_index = nodes.index(initial_wp)
     with open(save_loc, 'w') as mdp_file:
         mdp_file.write('mdp\n\n')
         mdp_file.write('module M\n\n')
-        mdp_file.write('waypoint:[-1..{}] init {};\n\n'.format(len(nodes)-1, len(nodes)-1))
+        mdp_file.write('waypoint:[-1..{}] init {};\n\n'.format(len(nodes)-1, init_index))
         for action in tm.edges.keys():
             edge = tm.edges[action]
             model = edge.traversal_model.get_discrete_duration_model()
@@ -31,12 +32,13 @@ def convert_to_mdp_time_as_reward(tm, save_loc):
 
         mdp_file.write('endrewards')
 
-def convert_to_time_mdp(tm, save_loc):
+def convert_to_time_mdp(tm, save_loc, initial_wp):
     nodes = tm.nodes.keys()
+    init_index = nodes.index(initial_wp)
     with open(save_loc, 'w') as mdp_file:
         mdp_file.write('mdp\n\n')
         mdp_file.write('module M\n\n')
-        mdp_file.write('waypoint:[-1..{}] init {};\n\n'.format(len(nodes)-1, len(nodes)-1))
+        mdp_file.write('waypoint:[-1..{}] init {};\n\n'.format(len(nodes)-1, init_index))
         T=500
         mdp_file.write('time:[0..{}] init 0;\n\n'.format(T))
         for action in tm.edges.keys():
