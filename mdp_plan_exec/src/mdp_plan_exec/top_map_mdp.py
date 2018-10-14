@@ -61,7 +61,9 @@ class TopMapMdp(Mdp):
                             'action_descriptions':deepcopy(self.action_descriptions),
                             'transitions':deepcopy(self.transitions)}
         
-              
+        self.last_prediction_epoch = rospy.Time()
+        self.get_new_preds_threshold = rospy.Duration(60*5)
+        
         rospy.loginfo("Topological MDP initialised")
 
 
@@ -381,9 +383,11 @@ class TopMapMdp(Mdp):
     def add_predictions(self, file_name, epoch=None, set_initial_state=True):
         if epoch is None:
             epoch=rospy.Time.now()
-        self.add_nav_predictions(epoch)
-        if self.explicit_doors:
-            self.add_door_predictions(epoch)
+        if self.last_prediction_epoch - epoch >  self.get_new_preds_threshold or epoch - self.last_prediction_epoch > self.get_new_preds_threshold:
+            self.add_nav_predictions(epoch)
+            self.last_prediction_epoch = epoch
+            if self.explicit_doors:
+                self.add_door_predictions(epoch)
         self.write_prism_model(file_name, set_initial_state)
     
 
