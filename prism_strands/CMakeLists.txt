@@ -71,4 +71,3 @@ install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/prism
   #FILES_MATCHING PATTERN "*.so"
   PATTERN ".svn" EXCLUDE
 )
-

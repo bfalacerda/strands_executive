@@ -61,7 +61,7 @@ class PolicyExecutionUtils(object):
         queue=[policy_mdp.current_flat_state]
         self.current_nav_policy_state_defs={policy_mdp.current_flat_state:current_state_def}
         while queue != []:
-            print(queue)
+            # print(queue)
             new_flat_state=queue.pop(0)
             current_state_def=policy_mdp.flat_state_defs[new_flat_state]
             if policy_mdp.flat_state_policy.has_key(new_flat_state):
@@ -81,10 +81,10 @@ class PolicyExecutionUtils(object):
         next_state = None
         #if got feedback from topo nav in a waypoint, check if need to update state
         if waypoint_val is not None:
-            rospy.loginfo("Reached waypoint " + waypoint)
+            # rospy.loginfo("Reached waypoint " + waypoint)
             #waypoint change is on the MDP transition model
             for (flat_state, flat_state_def) in self.current_nav_policy_state_defs.items():
-                print(flat_state_def)
+                # print(flat_state_def)
                 if flat_state_def["waypoint"]==waypoint_val:
                     next_state = flat_state
                     break
