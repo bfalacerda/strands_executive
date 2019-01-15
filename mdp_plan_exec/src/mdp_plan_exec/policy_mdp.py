@@ -175,7 +175,8 @@ class PolicyMdp(Mdp):
             self.current_state_def = self.flat_state_defs[flat_state]
             
     def has_action_defined(self):
-        return self.flat_state_policy.has_key(self.current_flat_state)
+     #   return self.flat_state_policy.has_key(self.current_flat_state) and self.flat_state_policy[self.current_flat_state] != "stay"
+        return self.get_current_action() not in [None, "stay"]
 
 
      ######simulation (for debugging)#######

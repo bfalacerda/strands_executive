@@ -133,8 +133,14 @@ class TopMapMdp(Mdp):
             self.transitions = []
             self.door_transitions = []
             self.door_transitions_edge_ids = []
+            self.actions.append("stay")
+            self.n_actions+=1
             for node in self.top_map.nodes:
-                source_name=node.name
+                trans  =MdpTransitionDef(action_name="stay",
+                                        pre_conds={'waypoint':i},
+                                        prob_post_conds=[(1.0, {'waypoint':i})],
+                                        rewards={'time':0.0})
+                self.transitions.append(trans)
                 for edge in node.edges:
                     target_index=self.props.index(edge.node)
                     action_name=edge.edge_id

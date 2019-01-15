@@ -4,7 +4,9 @@
 
 # PRISM home directory
 #PRISM_DIR="/home/marc/workspace/strands_kinetic_ws/build/strands_executive/prism_strands/prism/src/prism"
-PRISM_DIR="`rospack libs-only-L prism_strands`/prism"
+#PRISM_DIR="`rospack libs-only-L prism_strands`/prism"
+PRISM_DIR="/home/bruno/devel_ws/prism/prism"
+
 
 # Default value for notification after the scipt has finished (yes/no)
 NOTIFY_DEFAULT=no
@@ -73,7 +75,7 @@ export PRISM_DIR LD_LIBRARY_PATH
 
 # Main Java class to launch
 if [ "$PRISM_MAINCLASS" = "" ]; then
-	PRISM_MAINCLASS=prism.PartialSatPrismPythonTalker
+	PRISM_MAINCLASS=prism.PrismPythonTalker
 fi
 
 # Do we run headless? (GUI overrides this)
