@@ -11,7 +11,11 @@ from strands_executive_msgs.srv import GetGuaranteesForCoSafeTask, GetGuarantees
 class MdpTaskGuaranteesEstimator(object):
 
     def __init__(self, port, file_dir, file_name):
-        mdp=TopMapMdp(explicit_doors=True, forget_doors=True, model_fatal_fails=True)
+        explicit_doors = rospy.get_param("mdp_plan_exec/explicit_doors", True)
+        forget_doors = rospy.get_param("mdp_plan_exec/forget_doors", True)
+        model_fatal_fails = rospy.get_param("mdp_plan_exec/model_fatal_fails", True)
+
+        mdp=TopMapMdp(explicit_doors=explicit_doors, forget_doors=forget_doors, model_fatal_fails=model_fatal_fails)
         self.policy_utils = PolicyExecutionUtils(port, file_dir, file_name, mdp)
 
         self.service_lock = threading.Lock()

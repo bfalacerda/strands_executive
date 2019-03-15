@@ -4,7 +4,7 @@ from __future__ import with_statement
 import rospy
 from Queue import Queue, Empty
 from strands_executive_msgs.msg import Task, ExecutionStatus, DurationMatrix, DurationList, ExecutePolicyAction, ExecutePolicyFeedback, ExecutePolicyGoal, MdpStateVar, StringIntPair, StringTriple, MdpAction, MdpActionOutcome, MdpDomainSpec, TaskEvent
-from strands_executive_msgs.srv import GetGuaranteesForCoSafeTask, GetGuaranteesForCoSafeTaskRequest, AddCoSafeTasks, DemandCoSafeTask
+from strands_executive_msgs.srv import GetGuaranteesForCoSafeTask, GetGuaranteesForCoSafeTaskRequest, AddCoSafeTasks, DemandCoSafeTask, GetBlacklistedNodes
 from task_executor.base_executor import BaseTaskExecutor
 from threading import Thread, Condition
 from task_executor.execution_schedule import ExecutionSchedule
@@ -395,7 +395,8 @@ class MDPTaskExecutor(BaseTaskExecutor):
 
             # print("Got Feedback: " + str(feedback))
                         
-            rospy.loginfo('%s received feedback %s' % (feedback.executed_action, GoalStatus.to_string(feedback.execution_status)))
+            rospy.loginfo('%s received feedback %s, %s' % (feedback.executed_action, GoalStatus.to_string(feedback.execution_status), feedback.expected_time.to_sec()))
+
             self.expected_completion_time = self._expected_duration_to_completion_time(feedback.expected_time)
             
             # if feedback.execution_status >= GoalStatus.PREEMPTED:
@@ -441,7 +442,7 @@ class MDPTaskExecutor(BaseTaskExecutor):
             # drop the task if there's not enough time for expected duration to occur before the window closes
             # this ignores the navigation time for this task, making task dropping more permissive than it should be. this is ok for now.
             if now > (next_normal_task.task.end_before -  next_normal_task.task.expected_duration):
-                log_string = 'Dropping queued normal task %s as its time window closed at %s ' % (next_normal_task.task.action, rostime_to_python(next_normal_task.task.end_before))
+                log_string = 'Dropping queued normal task %s at %s as time window closed at %s ' % (next_normal_task.task.action, rostime_to_python(now), rostime_to_python(next_normal_task.task.end_before))
                 rospy.loginfo(log_string)
                 self.normal_tasks = SortedCollection(self.normal_tasks[1:], key=(lambda t: t.task.end_before))                
                 self.log_task_event(next_normal_task.task, TaskEvent.DROPPED, now, description = log_string)        
@@ -473,6 +474,18 @@ class MDPTaskExecutor(BaseTaskExecutor):
         return dropped
 
 
+    def _get_blacklisted_nodes(self):
+        """
+        Gets blacklisted nodes from service. If service does not exist, returns an empty list.
+        """
+        try:
+            get_blacklisted_nodes = rospy.ServiceProxy('task_executor/get_blacklisted_nodes', GetBlacklistedNodes)
+            resp = get_blacklisted_nodes()
+            return resp.nodes
+        except rospy.ServiceException, e:
+            print "Service call failed: %s"%e
+            return []
+
     def _mdp_single_task_to_goal(self, mdp_task):
         mdp_spec = self._mdp_tasks_to_spec([mdp_task])
         return ExecutePolicyGoal(spec = mdp_spec)
@@ -500,12 +513,29 @@ class MDPTaskExecutor(BaseTaskExecutor):
                 mdp_spec.actions.append(mdp_task.action)
 
 
+
+
         mdp_spec.ltl_task = ''
+
+
+        task_prefix = 'F '
+
+        # prevent the policy from visiting blacklisted nodes
+        # short-term fix is to have (!X U Y) & (!X U Z), 
+        # but longer term is Bruno adding G !X so we can have global invariants 
+        blacklist = self._get_blacklisted_nodes()
+        if len(blacklist) > 0:
+            task_prefix = '(!\"%s\"' % blacklist[0]
+            for bn in blacklist[1:]:            
+                task_prefix += ' & !\"%s\"' % bn
+            task_prefix += ') U '
+
+
 
         if len(non_ltl_tasks) > 0:
 
             for mdp_task in non_ltl_tasks:
-                mdp_spec.ltl_task += '(F %s=1) & ' % mdp_task.state_var.name                
+                mdp_spec.ltl_task += '(%s %s=1) & ' % (task_prefix, mdp_task.state_var.name)
             
             mdp_spec.ltl_task = mdp_spec.ltl_task[:-3]
            # mdp_spec.ltl_task += '))'
@@ -525,7 +555,7 @@ class MDPTaskExecutor(BaseTaskExecutor):
 
             mdp_spec.ltl_task = mdp_spec.ltl_task[:-3]
 
-        # print mdp_spec
+
 
         return mdp_spec
 
@@ -596,7 +626,7 @@ class MDPTaskExecutor(BaseTaskExecutor):
                     print "Start by: %s" % ros_time_to_string(mdp_task.task.start_after - nav_time)
 
                 if now > (mdp_task.task.start_after - nav_time):
-                    if guarantees.expected_time <= execution_window:                        
+                    if guarantees.probability > 0 and guarantees.expected_time <= execution_window:                        
                         possibles_with_guarantees_in_time.append((mdp_task, mdp_spec, guarantees))
 
                     # keep all guarantees anyway, as we might need to report one if we can't find a task to execute
@@ -800,7 +830,7 @@ class MDPTaskExecutor(BaseTaskExecutor):
                     # if we couldn't fit a batch in, but there were normal tasks available 
                     elif evaluated_at_least_one_task:
                         # if the first available task won't fit into the available execution time window, and this is the max possible, then increase the window size accordingly
-                        if execution_window == self.execution_window:                        
+                        if execution_window == self.execution_window and new_active_guarantees.expected_time > self.execution_window:                        
                             # for now just increase to the expected time of last tested policy
                             self.execution_window = new_active_guarantees.expected_time 
                             rospy.loginfo('Extending default execution windown to %s' % self.execution_window.to_sec())
@@ -900,7 +930,7 @@ class MDPTaskExecutor(BaseTaskExecutor):
                         return GoalStatus.RECALLED
 
             else:
-                if log_count % 6 == 0:
+                if log_count % 3 == 0:
                     rospy.loginfo('Another %.2f seconds until expected policy completion' % remaining_secs)
             log_count += 1
 
