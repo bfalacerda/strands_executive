@@ -43,7 +43,8 @@ add_service_files(
   CreateTask.srv
   DemandTask.srv
   CancelTask.srv
-  SetExecutionStatus.srv 
+  CancelActiveTask.srv
+  SetExecutionStatus.srv
   GetExecutionStatus.srv
   GetSchedule.srv
   UpdateNavStatistics.srv
@@ -52,6 +53,7 @@ add_service_files(
   GetGuaranteesForCoSafeTask.srv
   GetIDs.srv
   DemandCoSafeTask.srv
+  GetBlacklistedNodes.srv
 )
 
 
